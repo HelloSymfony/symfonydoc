@@ -43,7 +43,7 @@ Symfony2打包了一个“发布版本”，这是一个具有完整功能的应
     # .zip格式
     unzip Symfony_Standard_Vendors_2.0.###.zip    
 
-解压后，你应该有一个``Symfony/``的文件夹，目录结构如下：
+解压后，你应该有一个``Symfony/``的文件夹，目录结构如下： 
 
 .. code-block:: text
 
@@ -77,5 +77,38 @@ Symfony2打包了一个“发布版本”，这是一个具有完整功能的应
 配置和安装
 ~~~~~~~~~~
 
-到目前为止，所有必须的第三方库都在``vendor/``目录下。
+到目前为止，所有必须的第三方库都在``vendor/``目录下。同时在``app/``目录下有一个默认的应用配置，
+还有一些示例代码在``src/``目录下。
+
+Symfony2有一个可视化的配置测试工具来帮助你确保你的web服务器和PHP正确配置，以便使用Symfony。用下面的URL来
+检查你的配置：
+
+.. code-block:: text
+    
+    http://localhost/Symfony/web/config.php
+
+ 如果检查到有问题，更正后，我们继续。
+
+ .. sidebar:: 设置权限
+
+      一个最常见的问题是web服务器和命令行用户必须对``app/cache``和``app/logs``有写权限。
+      在UNIX系统上，如果你的web服务器用户跟命令行用户不是同一个用户，你可以在你的项目中
+      运行一次一下的命令，以确保正确设置了权限。把``www-data``改为你的web服务器用户：
+
+      **1. 在支持chmod +a的系统上用ACL**
+
+      许多系统允许你用命令``chmod +a``。先试下这个，如果有错误，尝试下一个的方法：
+
+      .. code-block:: bash
+          rm -rf app/cache/*
+          rm -rf app/logs/*
+
+        sudo chmod +a "www-data allow delete,write,append,file_inherit,directory_inherit" app/cache app/logs
+        sudo chmod +a "`whoami` allow delete,write,append,file_inherit,directory_inherit" app/cache app/log
+
+      **2. 在不支持chmod +a的系统上用ACL**
+
+      一些系统不支持``chmod +a``，但支持另外一种叫``setfacl``的工具。你可能需要`打开ACL支持`_ 
+
+
 
