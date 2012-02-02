@@ -108,7 +108,72 @@ Symfony2有一个可视化的配置测试工具来帮助你确保你的web服务
 
       **2. 在不支持chmod +a的系统上用ACL**
 
-      一些系统不支持``chmod +a``，但支持另外一种叫``setfacl``的工具。你可能需要`打开ACL支持`_ 
+      一些系统不支持``chmod +a``，但支持另外一种叫``setfacl``的工具。你可能需要在你的硬盘分区上`打开ACL支持`_，
+      安装setfacl，然后如下所示来使用：
+
+      .. code-block:: bash
+
+          sudo setfacl -R -m u:www-data:rwx -m u:`whoami`:rwx app/cache app/logs
+          sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx app/cache app/logs
+
+      **3. 不用ACL**
+
+      如果你没有权限改变文件夹的ACL，你需要修改umash，使cache和log文件夹和对整个
+      用户组或全部用户可写（取决于web服务器和命令行用户是否是同一个用户组）。要做到这一点，
+      把下行放到``app/console``，``web/app.php``和```web/app_dev.php``的开头。
+
+      .. code-block:: php
+
+          umash(0002); // 这个会让权限变为0775
+
+          // 或
+
+          umash(0000); // 这个会让权限变为0777
+
+       需要注意的是，如果你有权限更改文件夹权限，推荐使用ACL，因为改变umash不是thread-safe的。
+
+当一切都没问题时，点击"Go to welcome page"来请求你的第一个真正的Symfony2网页：
+
+.. code-block:: text
+
+    http://localhost/Symfony/web/app_dev.php/
+
+你应该会看到Symfony2欢迎你的信息。
+
+.. image:: /images/quick_tour/welcome.jpg
 
 
+开始开发
+--------
+
+现在你有了一个具有完成功能的Symfony2应用，你可以开始继续开发了！你的下载的发布版本应该包含以下
+示例代码 - 可以通过查看随同发布版本的``README.rst``文件（以txt格式打开）来了解示例代码，并了解
+如何在后续开发中删除这些代码。
+
+使用版本控制系统
+----------------
+
+如果你使用类似于``Git``和``Subversion``的版本控制系统，你可以稍加设置，开始提交你的代码。
+Symfony标准发布版本*是*你新项目的起点。
+
+想要了解怎样更好的使用git来管理你的项目， 参照:doc:`/cookbook/workflow/new_project_git`。
+
+忽略``vendor/``目录
+~~~~~~~~~~~~~~~~~~~
+
+如果你下载了不含vendors的压缩包，你可以忽略整个``vendor/``文件夹，避免其被提交到版本控制系统。
+如果你用的是``Git``，可以创建一个``.gitignore``的文件，计入下面一行：
+
+.. code-block:: text
+    
+    vendor/
+
+现在，vendor文件夹不会被错误的提交到版本控制。这样很好（其实，棒极了！），因为其他人clone或
+check out这个项目时，他/她可以简单的运行``php bin/vendors install``脚本来下载所有必须的vendor
+库。
+
+.. _`enable ACL support`: https://help.ubuntu.com/community/FilePermissions#ACLs
+.. _`http://symfony.com/download`: http://symfony.com/download
+.. _`Git`: http://git-scm.com/
+.. _`GitHub Bootcamp`: http://help.github.com/set-up-git-redirec
 
