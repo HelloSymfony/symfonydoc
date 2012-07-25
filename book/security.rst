@@ -622,14 +622,16 @@ user to a specific URL.
 
 For more details on this and how to customize the form login process in general,
 see :doc:`/cookbook/security/form_login`.
+要了解如何定制表单登陆过程，参见:doc:`/cookbook/security/form_login`。
 
 .. _book-security-common-pitfalls:
 
 .. sidebar:: Avoid Common Pitfalls
 
     When setting up your login form, watch out for a few common pitfalls.
+    当设置你的表单时，注意以下几点：
 
-    **1. Create the correct routes**
+    **1. 创建正确的路径**
 
     First, be sure that you've defined the ``/login`` and ``/login_check``
     routes correctly and that they correspond to the ``login_path`` and
@@ -637,13 +639,18 @@ see :doc:`/cookbook/security/form_login`.
     redirected to a 404 page instead of the login page, or that submitting
     the login form does nothing (you just see the login form over and over
     again).
+    首先，确定你已经正确定义了``/login``和``/login_check``路径，并确保它们都对应于 
+    配置中的``login_path``和``check_path``的值。如果你配置错误，那么你就会被重定向到一个
+    404页面，而不是登陆页面，或者提交表单的时候不做任何事情。
 
-    **2. Be sure the login page isn't secure**
+    **2. 确保登陆页面没有被禁止访问**
 
     Also, be sure that the login page does *not* require any roles to be
     viewed. For example, the following configuration - which requires the
     ``ROLE_ADMIN`` role for all URLs (including the ``/login`` URL), will
     cause a redirect loop:
+    确保登陆页面的访问不要求任何角色。比如，以下配置要求访问所有URL都要有``ROLE_ADMIN``角色（包括``/login``路径），
+    这就会导致一个重定向循环：
 
     .. configuration-block::
 
@@ -665,6 +672,7 @@ see :doc:`/cookbook/security/form_login`.
             ),
 
     Removing the access control on the ``/login`` URL fixes the problem:
+    要解决这个问题，将``/login``路径的access control移除：
 
     .. configuration-block::
 
@@ -690,7 +698,7 @@ see :doc:`/cookbook/security/form_login`.
 
     Also, if your firewall does *not* allow for anonymous users, you'll need
     to create a special firewall that allows anonymous users for the login
-    page:
+    page:并且，如果你的防火墙不允许匿名用户，你还要创建一个特定的防火墙来允许登陆页面的匿名用户：
 
     .. configuration-block::
 
@@ -726,51 +734,68 @@ see :doc:`/cookbook/security/form_login`.
                 ),
             ),
 
-    **3. Be sure ``/login_check`` is behind a firewall**
+    **3. 确保``/login_check``在防火墙的后面**
 
     Next, make sure that your ``check_path`` URL (e.g. ``/login_check``)
     is behind the firewall you're using for your form login (in this example,
     the single firewall matches *all* URLs, including ``/login_check``). If
     ``/login_check`` doesn't match any firewall, you'll receive a ``Unable
     to find the controller for path "/login_check"`` exception.
+    确保你的check_path URL（即/login_check）在你为你的登陆表单所设置的防火墙的后面
+    （在这个例子中，防火墙匹配所有的URL，包括了/login_check）。如果/login_check不匹配任何
+    防火墙，你会接收到一个``Unable
+    to find the controller for path "/login_check"``错误信息。
 
-    **4. Multiple firewalls don't share security context**
+    **4. 多个防火墙不共享安全环境**
 
     If you're using multiple firewalls and you authenticate against one firewall,
     you will *not* be authenticated against any other firewalls automatically.
     Different firewalls are like different security systems. That's why,
     for most applications, having one main firewall is enough.
+    如果你使用多个防火墙并且通过一个防火墙验证，你不会自动的通过其他防火墙进行验证。
+    不同防火墙就好比不同安全系统。这就是为什么大多数应用只有一个主要防火墙就足够了。
 
 Authorization
+授权
 -------------
 
 The first step in security is always authentication: the process of verifying
 who the user is. With Symfony, authentication can be done in any way - via
 a form login, basic HTTP Authentication, or even via Facebook.
+安全系统的第一步就是验证：确定用户是谁。symfony允许验证通过表单、HTTP验证、或facebook验证。
 
 Once the user has been authenticated, authorization begins. Authorization
 provides a standard and powerful way to decide if a user can access any resource
 (a URL, a model object, a method call, ...). This works by assigning specific
 roles to each user, and then requiring different roles for different resources.
+一旦用户被验证，授权系统便启动了。授权系统通过一个标准方式来确定用户是否可以进入某个页面
+（一个URL，一个model对象，一个方法……），即，为每个用户都确定一个角色，然后对页面确定
+某个角色能够访问。
 
 The process of authorization has two different sides:
+授权的过程有两个方面：
 
-#. The user has a specific set of roles;
-#. A resource requires a specific role in order to be accessed.
+#. 用户有不同角色;
+#. 要进入某个页面，需要特定的角色。
 
 In this section, you'll focus on how to secure different resources (e.g. URLs,
 method calls, etc) with different roles. Later, you'll learn more about how
 roles are created and assigned to users.
+在本节中，你将学到如何限制访问不同页面（URL或方法，等等）。你还将学习如何创建角色并指定给用户。
 
 Securing Specific URL Patterns
+限制访问特定的URL pattern
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The most basic way to secure part of your application is to secure an entire
 URL pattern. You've seen this already in the first example of this chapter,
 where anything matching the regular expression pattern ``^/admin`` requires
 the ``ROLE_ADMIN`` role.
+限制访问应用的一个基本方法就是限制访问整个URL pattern。在本章第一节中你已经见到了，
+所有匹配正则表达式pattern ``^/admin`` 的页面都要求ROLE_ADMIN角色。
 
 You can define as many URL patterns as you need - each is a regular expression.
+你可以任意多地指定URL pattern——每个都是正则表达式。
 
 .. configuration-block::
 
@@ -809,6 +834,8 @@ You can define as many URL patterns as you need - each is a regular expression.
     the pattern are matched. For example, a path of simply ``/admin`` (without
     the ``^``) would correctly match ``/admin/foo`` but would also match URLs
     like ``/foo/admin``.
+    在路径前面加上``^``能够确保唯有以这个pattern开头的URL能够匹配。比如，仅仅是一个
+    ``/admin`` URL（没有^）会匹配``/admin/foo``，同时也会匹配``/foo/admin``。
 
 For each incoming request, Symfony2 tries to find a matching access control
 rule (the first one wins). If the user isn't authenticated yet, the authentication
@@ -818,14 +845,21 @@ if the user *is* authenticated but doesn't have the required role, an
 exception is thrown, which you can handle and turn into a nice "access denied"
 error page for the user. See :doc:`/cookbook/controller/error_pages` for
 more information.
+对于每个请求，symfony2都会查询匹配的access_control规则（第一个是优先的）。如果用户还没有被
+验证，那么验证程序就会启动（比如会让用户登陆）。但是，如果这个用户已经通过验证而角色不匹配，
+就会抛出一个:class:`Symfony\\Component\\Security\\Core\\Exception\\AccessDeniedException`错误，
+你可以自定义这个错误页面。参见:doc:`/cookbook/controller/error_pages`。
 
 Since Symfony uses the first access control rule it matches, a URL like ``/admin/users/new``
 will match the first rule and require only the ``ROLE_SUPER_ADMIN`` role.
 Any URL like ``/admin/blog`` will match the second rule and require ``ROLE_ADMIN``.
+由于symfony使用第一个匹配的access_control规则，一个像``/admin/users/new``这样的URL会匹配
+第一个规则并要求``ROLE_SUPER_ADMIN``角色。任何像``/admin/blog``这样的URL则会匹配第二个规则，并要求ROLE_ADMIN角色。
 
 .. _book-security-securing-ip:
 
 Securing by IP
+根据IP限制访问
 ~~~~~~~~~~~~~~
 
 Certain situations may arise when you may need to restrict access to a given
@@ -835,8 +869,12 @@ ESI is used, the _internal route is required by the gateway cache to enable
 different caching options for subsections within a given page. This route
 comes with the ^/_internal prefix by default in the standard edition (assuming
 you've uncommented those lines from the routing file).
+有些时候你可能需要根据IP地址来限制访问某个特定的路径。尤其在:ref:`Edge Side Includes<edge-side-includes>`（ESI）中
+会用到，它会使用一个名叫_internal的路径。当使用ESI时，gateway缓存会通过请求这个路径来激活
+不同部分的缓存选项。在标准版本中，这个路径有一个^/_internal前缀（假设你在路由文件中没有将这一行注释掉）。
 
 Here is an example of how you might secure this route from outside access:
+以下是一个可以使这个路径禁止外部访问的范例：
 
 .. configuration-block::
 
@@ -863,10 +901,12 @@ Here is an example of how you might secure this route from outside access:
 .. _book-security-securing-channel:
 
 Securing by Channel
+根据channel限制访问
 ~~~~~~~~~~~~~~~~~~~
 
 Much like securing based on IP, requiring the use of SSL is as simple as
 adding a new access_control entry:
+像基于IP的安全访问一样，使用SSL也是添加一个新的access_control：
 
 .. configuration-block::
 
@@ -893,11 +933,13 @@ adding a new access_control entry:
 .. _book-security-securing-controller:
 
 Securing a Controller
+根据控制器限制访问
 ~~~~~~~~~~~~~~~~~~~~~
 
 Protecting your application based on URL patterns is easy, but may not be
 fine-grained enough in certain cases. When necessary, you can easily force
 authorization from inside a controller:
+根据URL来限制访问有时候还不能满足所有要求，有时，你还可以在控制器中设置授权：
 
 .. code-block:: php
 
@@ -917,6 +959,7 @@ authorization from inside a controller:
 
 You can also choose to install and use the optional ``JMSSecurityExtraBundle``,
 which can secure your controller using annotations:
+你还可以选择使用``JMSSecurityExtraBundle``，它可以使用注释来在控制器中设置访问限制：
 
 .. code-block:: php
 
@@ -933,8 +976,11 @@ which can secure your controller using annotations:
 For more information, see the `JMSSecurityExtraBundle`_ documentation. If you're
 using Symfony's Standard Distribution, this bundle is available by default.
 If not, you can easily download and install it.
+要了解更多请参阅`JMSSecurityExtraBundle`_。如果你使用的是symfony标准版，这个bundle已经默认安装了。
+如果不是，请自行下载并安装。
 
 Securing other Services
+限制访问其他服务
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 In fact, anything in Symfony can be protected using a strategy similar to
@@ -942,39 +988,55 @@ the one seen in the previous section. For example, suppose you have a service
 (i.e. a PHP class) whose job is to send emails from one user to another.
 You can restrict use of this class - no matter where it's being used from -
 to users that have a specific role.
+事实上，任何东西都可以像以上方法那样被限制访问。比如，假设你有一个服务（如一个php类），这个服务可以
+将邮件从一个用户发送到另一个用户。你可以对拥有某个角色的用户限制使用这个类——不管是在哪里使用它的。
 
 For more information on how you can use the security component to secure
 different services and methods in your application, see :doc:`/cookbook/security/securing_services`.
+更多关于限制访问你的服务和方法的信息请参阅:doc:`/cookbook/security/securing_services`。
 
 Access Control Lists (ACLs): Securing Individual Database Objects
+Access Control Lists (ACLs)：限制访问个人数据库实体类
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Imagine you are designing a blog system where your users can comment on your
 posts. Now, you want a user to be able to edit his own comments, but not
 those of other users. Also, as the admin user, you yourself want to be able
 to edit *all* comments.
+假设你要设计一个博客系统，在这个系统中，用户可以对你的文章发表评论。现在，你想使这个用户可以
+修改他的自己的评论，但是不能修改别人的评论。并且，作为一个管理员，你可以修改所有的评论。
 
 The security component comes with an optional access control list (ACL) system
 that you can use when you need to control access to individual instances
 of an object in your system. *Without* ACL, you can secure your system so that
 only certain users can edit blog comments in general. But *with* ACL, you
 can restrict or allow access on a comment-by-comment basis.
+安全系统有一个可选的Access Control Lists (ACLs)系统，你可以使用它来控制访问数据库的实体类（个人信息）。
+假如没有ACL，你可以允许某些用户来编辑整个的博客评论。但是通过ACL，你可以根据用户的数据库信息来
+决定他是否被允许访问某个评论页面。
 
 For more information, see the cookbook article: :doc:`/cookbook/security/acl`.
+请参阅:doc:`/cookbook/security/acl`。
 
 Users
+用户
 -----
 
 In the previous sections, you learned how you can protect different resources
 by requiring a set of *roles* for a resource. In this section we'll explore
 the other side of authorization: users.
+在以上章节中，你学习了如何通过请求一系列的角色来确定用户是否能够访问某个页面。在这一节中我们
+将探索授权的另一方面：用户。
 
 Where do Users come from? (*User Providers*)
+用户来自哪里？（用户提供方）
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 During authentication, the user submits a set of credentials (usually a username
 and password). The job of the authentication system is to match those credentials
 against some pool of users. So where does this list of users come from?
+在验证过程中，用户提交了一系列的用户信息（通常是username和password）。验证的工作就是将
+提交的用户信息与一个信息库中的用户信息相匹配。那么这个信息库中的用户从哪里来？
 
 In Symfony2, users can come from anywhere - a configuration file, a database
 table, a web service, or anything else you can dream up. Anything that provides
@@ -982,12 +1044,17 @@ one or more users to the authentication system is known as a "user provider".
 Symfony2 comes standard with the two most common user providers: one that
 loads users from a configuration file and one that loads users from a database
 table.
+在symfony2中，用户可以来自于一个配置文件，一个数据库，一个web服务，等等。所有向验证系统提供了
+用户的系统都被称为“用户提供方”。symfony2中最常用的用户提供方有两个：一个从配置文件中载入用户，一个
+从数据库中载入用户。
 
 Specifying Users in a Configuration File
+在配置文件中指定用户
 ........................................
 
 The easiest way to specify your users is directly in a configuration file.
 In fact, you've seen this already in the example in this chapter.
+最方便的方法就是在配置文件中直接指定用户。实际上，在以上章节中你已经看到了这种方法。
 
 .. configuration-block::
 
@@ -1036,16 +1103,20 @@ In fact, you've seen this already in the example in this chapter.
 This user provider is called the "in-memory" user provider, since the users
 aren't stored anywhere in a database. The actual user object is provided
 by Symfony (:class:`Symfony\\Component\\Security\\Core\\User\\User`).
+这个用户提供方被称作in-memory用户提供方，这是因为用户没有被存储在数据库中。实际上的用户是由symfony提供的
+（:class:`Symfony\\Component\\Security\\Core\\User\\User`）。
 
 .. tip::
     Any user provider can load users directly from configuration by specifying
     the ``users`` configuration parameter and listing the users beneath it.
+    所有的用户提供方都可以直接从配置中载入用户，只要设定``users``参数并将用户列在下面。
 
 .. caution::
 
     If your username is completely numeric (e.g. ``77``) or contains a dash
     (e.g. ``user-name``), you should use that alternative syntax when specifying
     users in YAML:
+    如果你的username是数字（比如77）或者有横杠（比如user-name），你应该在YAML中按照如下格式写：
 
     .. code-block:: yaml
 
@@ -1055,23 +1126,28 @@ by Symfony (:class:`Symfony\\Component\\Security\\Core\\User\\User`).
 
 For smaller sites, this method is quick and easy to setup. For more complex
 systems, you'll want to load your users from the database.
+对于小的网站，这个方法很方便。但是对于大的网站，你需要从数据库中载入用户。
 
 .. _book-security-user-entity:
 
 Loading Users from the Database
+从数据库中载入用户
 ...............................
 
 If you'd like to load your users via the Doctrine ORM, you can easily do
 this by creating a ``User`` class and configuring the ``entity`` provider.
+如果你想从doctrine ORM中载入用户，可以创建一个User类并配置entity提供方。
 
 .. tip:
 
     A high-quality open source bundle is available that allows your users
     to be stored via the Doctrine ORM or ODM. Read more about the `FOSUserBundle`_
     on GitHub.
+    现在有一个开源bundle允许你将用户存储在doctrine ORM或ODM中。参阅`FOSUserBundle`_。
 
 With this approach, you'll first create your own ``User`` class, which will
 be stored in the database.
+首先，你需要创建你的User类：
 
 .. code-block:: php
 
@@ -1098,6 +1174,8 @@ As far as the security system is concerned, the only requirement for your
 custom user class is that it implements the :class:`Symfony\\Component\\Security\\Core\\User\\UserInterface`
 interface. This means that your concept of a "user" can be anything, as long
 as it implements this interface.
+唯一的要求就是需要你在该类中植入:class:`Symfony\\Component\\Security\\Core\\User\\UserInterface`这个interface。
+这表示你的user可以是任何东西，只要植入这个interface就可以了。
 
 .. versionadded:: 2.1
 
@@ -1105,6 +1183,8 @@ as it implements this interface.
     If you need to override the default implementation of comparison logic,
     implement the new :class:`Symfony\\Component\\Security\\Core\\User\\EquatableInterface`
     interface.
+    在symfony2.1中，equals方法从``UserInterface``中被移除了。如果你需要覆盖其中植入的默认的比较逻辑，
+    请植入新的:class:`Symfony\\Component\\Security\\Core\\User\\EquatableInterface` interface。
 
 .. note::
 
@@ -1112,9 +1192,12 @@ as it implements this interface.
     therefore it is recommended that you `implement the \Serializable interface`_
     in your user object. This is especially important if your ``User`` class
     has a parent class with private properties.
+    在请求过程中，user对象会被序列化并存储在session中，所以推荐在你的user对象中`implement the \Serializable interface`_。
+    如果你的User类有一个父类，并这个父类有private属性，这一点尤其重要。
 
 Next, configure an ``entity`` user provider, and point it to your ``User``
 class:
+下面，配置一个entity用户提供方，并将它指向你的User类：
 
 .. configuration-block::
 
@@ -1149,17 +1232,21 @@ class:
 With the introduction of this new provider, the authentication system will
 attempt to load a ``User`` object from the database by using the ``username``
 field of that class.
+由于指定了用户提供方，验证系统会从数据库中通过username这个字段载入User对象。
 
 .. note::
     This example is just meant to show you the basic idea behind the ``entity``
     provider. For a full working example, see :doc:`/cookbook/security/entity_provider`.
+    这个例子仅仅向你展示了entity提供方背后最基本的逻辑。更多范例请参阅:doc:`/cookbook/security/entity_provider`。
 
 For more information on creating your own custom provider (e.g. if you needed
 to load users via a web service), see :doc:`/cookbook/security/custom_provider`.
+要创建你自己的提供方，请参阅:doc:`/cookbook/security/custom_provider`。
 
 .. _book-security-encoding-user-password:
 
 Encoding the User's Password
+给用户密码加密
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 So far, for simplicity, all the examples have stored the users' passwords
@@ -1169,6 +1256,9 @@ your users' passwords for security reasons. This is easily accomplished by
 mapping your User class to one of several built-in "encoders". For example,
 to store your users in memory, but obscure their passwords via ``sha1``,
 do the following:
+目前为止，为了简化，所有的范例都使用普通文本来存储用户的password（不管用户被存储在配置文件或数据库中）。当然，
+在实际应用中，为了安全考虑，你需要给用户的password加密。只要将你的User对象映射到encoders中就可以了。
+比如，要将用户存储在memory中，但要通过sha1加密他们的password，只要：
 
 .. configuration-block::
 
@@ -1233,12 +1323,16 @@ By setting the ``iterations`` to ``1`` and the ``encode_as_base64`` to false,
 the password is simply run through the ``sha1`` algorithm one time and without
 any extra encoding. You can now calculate the hashed password either programmatically
 (e.g. ``hash('sha1', 'ryanpass')``) or via some online tool like `functions-online.com`_
+通过将iterations设置为1并将encode_as_base64设置为false，password就会通过sha1加密一次。要
+解密password，可以通过程序（e.g. ``hash('sha1', 'ryanpass')``），或在线工具，如`functions-online.com`_。
 
 If you're creating your users dynamically (and storing them in a database),
 you can use even tougher hashing algorithms and then rely on an actual password
 encoder object to help you encode passwords. For example, suppose your User
 object is ``Acme\UserBundle\Entity\User`` (like in the above example). First,
 configure the encoder for that user:
+如果你动态创建用户（并将他们存储在数据库），你可以使用更复杂的方法和encoder对象来加密。比如，
+假设你的User对象是``Acme\UserBundle\Entity\User``，首先，为那个用户配置encoders：
 
 .. configuration-block::
 
@@ -1277,11 +1371,15 @@ will default to hashing your password 5000 times in a row and then encoding
 it as base64. In other words, the password has been greatly obfuscated so
 that the hashed password can't be decoded (i.e. you can't determine the password
 from the hashed password).
+在这个例子中，你使用了一种更复杂的sha512方法。系统会默认将你的密码加密5000次并解析为base64。
+换句话说，密码不能被解密了。
 
 If you have some sort of registration form for users, you'll need to be able
 to determine the hashed password so that you can set it on your user. No
 matter what algorithm you configure for your user object, the hashed password
 can always be determined in the following way from a controller:
+如果用户通过表单注册，你需要确定被加密后的密码，从而能添加到数据库。不管你配置了什么
+加密方法，在控制器中，你可以用以下方法来确定加密密码：
 
 .. code-block:: php
 
@@ -1293,11 +1391,13 @@ can always be determined in the following way from a controller:
     $user->setPassword($password);
 
 Retrieving the User Object
+获取User对象
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 After authentication, the ``User`` object of the current user can be accessed
 via the ``security.context`` service. From inside a controller, this will
 look like:
+在验证后，当前用户的User对象可以通过``security.context``服务访问。在控制器中，像这样：
 
 .. code-block:: php
 
@@ -1307,6 +1407,7 @@ look like:
     }
 
 In a controller this can be shortcut to:
+以下是便捷方法：
 
 .. code-block:: php
 
@@ -1322,10 +1423,13 @@ In a controller this can be shortcut to:
     method of an anonymous user object will return true. To check if your
     user is actually authenticated, check for the ``IS_AUTHENTICATED_FULLY``
     role.
+    匿名用户技术上是被验证过的，这表示``isAuthenticated()``方法对于一个匿名用户对象会返回true。
+    要检查你的用户是否确实通过了验证，检查``IS_AUTHENTICATED_FULLY``角色。
     
 In a Twig Template this object can be accessed via the ``app.user`` key,
 which calls the :method:`GlobalVariables::getUser()<Symfony\\Bundle\\FrameworkBundle\\Templating\\GlobalVariables::getUser>`
 method:
+在twig模板中这个对象可以通过app.user访问，它会执行:method:`GlobalVariables::getUser()<Symfony\\Bundle\\FrameworkBundle\\Templating\\GlobalVariables::getUser>`。
 
 .. configuration-block::
 
@@ -1335,6 +1439,7 @@ method:
 
 
 Using Multiple User Providers
+使用多个用户提供方
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each authentication mechanism (e.g. HTTP Authentication, form login, etc)
@@ -1342,6 +1447,9 @@ uses exactly one user provider, and will use the first declared user provider
 by default. But what if you want to specify a few users via configuration
 and the rest of your users in the database? This is possible by creating
 a new provider that chains the two together:
+每个验证体系（e.g. HTTP Authentication, form login, etc）使用仅仅一个用户提供方，并且会默认使用
+第一个用户提供方。但是如果你需要通过配置指定一些用户，而剩下的通过数据库指定呢？要达到这个目的，
+可以创建一个提供方将两个串联在一起：
 
 .. configuration-block::
 
@@ -1401,12 +1509,15 @@ a new provider that chains the two together:
 Now, all authentication mechanisms will use the ``chain_provider``, since
 it's the first specified. The ``chain_provider`` will, in turn, try to load
 the user from both the ``in_memory`` and ``user_db`` providers.
+现在，所有的验证系统都会使用``chain_provider``，因为它是第一个被指定的。现在``chain_provider``
+会试图从``in_memory``和``user_db``两处提供方载入用户。
 
 .. tip::
 
     If you have no reasons to separate your ``in_memory`` users from your
     ``user_db`` users, you can accomplish this even more easily by combining
     the two sources into a single provider:
+    如果你的``in_memory``和``user_db``的用户不分开，你可以更容易地将两者结合：
 
     .. configuration-block::
 
@@ -1454,6 +1565,8 @@ the user from both the ``in_memory`` and ``user_db`` providers.
 You can also configure the firewall or individual authentication mechanisms
 to use a specific provider. Again, unless a provider is specified explicitly,
 the first provider is always used:
+你还可以配置防火墙，使它使用指定的提供方。再说明一次，除非一个提供方被显性地指明，否则总是
+使用第一个提供方：
 
 .. configuration-block::
 
@@ -1502,34 +1615,47 @@ In this example, if a user tries to login via HTTP authentication, the authentic
 system will use the ``in_memory`` user provider. But if the user tries to
 login via the form login, the ``user_db`` provider will be used (since it's
 the default for the firewall as a whole).
+在这个例子中，如果一个用户要通过HTTP验证登陆，验证系统会使用in_memory用户提供方。
+但是如果用户想要通过表单登陆，验证系统就会使用user_db提供方（这是整个防火墙默认的提供方）。
 
 For more information about user provider and firewall configuration, see
 the :doc:`/reference/configuration/security`.
+要了解更多有关用户提供方和防火墙配置的信息请参阅:doc:`/reference/configuration/security`。
 
 Roles
+角色
 -----
 
 The idea of a "role" is key to the authorization process. Each user is assigned
 a set of roles and then each resource requires one or more roles. If the user
 has the required roles, access is granted. Otherwise access is denied.
+角色是授权过程的关键。每个用户都被指定了一系列的角色，并且每个页面都要求一个或多个角色。
+如果用户拥有要求的角色，他就允许访问，否则就不被允许。
 
 Roles are pretty simple, and are basically strings that you can invent and
 use as needed (though roles are objects internally). For example, if you
 need to start limiting access to the blog admin section of your website,
 you could protect that section using a ``ROLE_BLOG_ADMIN`` role. This role
 doesn't need to be defined anywhere - you can just start using it.
+roles仅仅是字符串，你可以根据需要任意指定（虽然roles在内部其实是对象）。比如，如果你
+想对博客系统的admin部分设置访问权限，你可以使用一个``ROLE_BLOG_ADMIN``角色。
+这个角色不必在别的地方定义，只要使用它就可以了。
 
 .. note::
 
     All roles **must** begin with the ``ROLE_`` prefix to be managed by
     Symfony2. If you define your own roles with a dedicated ``Role`` class
     (more advanced), don't use the ``ROLE_`` prefix.
+    所有的角色都必须以``ROLE_``作为前缀，这样才能被symfony2处理。如果你要使用一个Role类来定义你
+    自己的角色，就不要使用``ROLE_``前缀。
 
 Hierarchical Roles
+角色继承
 ~~~~~~~~~~~~~~~~~~
 
 Instead of associating many roles to users, you can define role inheritance
 rules by creating a role hierarchy:
+你可以定义角色继承：
 
 .. configuration-block::
 
@@ -1562,13 +1688,17 @@ rules by creating a role hierarchy:
 In the above configuration, users with ``ROLE_ADMIN`` role will also have the
 ``ROLE_USER`` role. The ``ROLE_SUPER_ADMIN`` role has ``ROLE_ADMIN``, ``ROLE_ALLOWED_TO_SWITCH``
 and ``ROLE_USER`` (inherited from ``ROLE_ADMIN``).
+在以上范例中，拥有``ROLE_ADMIN``同时也就有了``ROLE_USER``角色。``ROLE_SUPER_ADMIN``角色同时有
+``ROLE_ADMIN``, ``ROLE_ALLOWED_TO_SWITCH``和``ROLE_USER``角色（继承至``ROLE_ADMIN``）。
 
 Logging Out
+登出
 -----------
 
 Usually, you'll also want your users to be able to log out. Fortunately,
 the firewall can handle this automatically for you when you activate the
 ``logout`` config parameter:
+用户还要能够登出。防火墙可以自动处理这类工作，只要你激活logout配置参数：
 
 .. configuration-block::
 
@@ -1614,6 +1744,9 @@ current user. The user will then be sent to the homepage (the value defined
 by the ``target`` parameter). Both the ``path`` and ``target`` config parameters
 default to what's specified here. In other words, unless you need to customize
 them, you can omit them entirely and shorten your configuration:
+一旦你的防火墙有了这个配置，将一个用户定向至/logout（或者任何你在path中配置的路径）会使用户登出。
+然后用户会被定向至主页（在target中配置的值）。这里定义的就是默认的path和target的值，所以，你可以直接用以下的
+便捷方式，除非你需要自定义它们：
 
 .. configuration-block::
 
@@ -1632,6 +1765,7 @@ them, you can omit them entirely and shorten your configuration:
 Note that you will *not* need to implement a controller for the ``/logout``
 URL as the firewall takes care of everything. You may, however, want to create
 a route so that you can use it to generate the URL:
+注意你不需要为/logout植入一个控制器，防火墙会自动完成一切工作。你需要创建一个路径来集成URL：
 
 .. configuration-block::
 
@@ -1669,12 +1803,16 @@ Once the user has been logged out, he will be redirected to whatever path
 is defined by the ``target`` parameter above (e.g. the ``homepage``). For
 more information on configuring the logout, see the
 :doc:`Security Configuration Reference</reference/configuration/security>`.
+一旦用户登出，他会被定向至target中定义的路径。要了解更多有关logout的信息请参阅
+:doc:`Security Configuration Reference</reference/configuration/security>`。
 
 Access Control in Templates
+模板中的访问权限
 ---------------------------
 
 If you want to check if the current user has a role inside a template, use
 the built-in helper function:
+如果你需要检查当前的用户在一个模板中是否拥有角色，可以使用内置的helper方法：
 
 .. configuration-block::
 
@@ -1696,12 +1834,16 @@ the built-in helper function:
     active, an exception will be thrown. Again, it's almost always a good
     idea to have a main firewall that covers all URLs (as has been shown
     in this chapter).
+    如果你在一个防火墙没有激活的URL中使用这个方法，一个错误会被抛出。所以，最好是有
+    一个防火墙覆盖所有的URL（本章已列举该范例）。
 
 Access Control in Controllers
+控制器中的访问权限
 -----------------------------
 
 If you want to check if the current user has a role in your controller, use
 the ``isGranted`` method of the security context:
+如果你需要检查当前用户在控制器中是否有权限，使用security context中的``isGranted``方法：
 
 .. code-block:: php
 
@@ -1718,14 +1860,18 @@ the ``isGranted`` method of the security context:
 
     A firewall must be active or an exception will be thrown when the ``isGranted``
     method is called. See the note above about templates for more details.
+    像上述模板中一样，该URL中的防火墙应该被激活，否则会抛出错误。
 
 Impersonating a User
+切换用户
 --------------------
 
 Sometimes, it's useful to be able to switch from one user to another without
 having to logout and login again (for instance when you are debugging or trying
 to understand a bug a user sees that you can't reproduce). This can be easily
 done by activating the ``switch_user`` firewall listener:
+有时候你需要从一个用户切换到另一个用户，而不必登陆以及登出（比如当你调试的时候）。
+要达到这个目的，可以配置防火墙中的``switch_user``参数：
 
 .. configuration-block::
 
@@ -1762,10 +1908,12 @@ done by activating the ``switch_user`` firewall listener:
 
 To switch to another user, just add a query string with the ``_switch_user``
 parameter and the username as the value to the current URL:
+要想切换到另一个用户，只要在当前URL后面添加一个具有``_switch_user``参数和username的请求语句：
 
     http://example.com/somewhere?_switch_user=thomas
 
 To switch back to the original user, use the special ``_exit`` username:
+要切换会原来的用户，只要将``_exit``作为username使用：
 
     http://example.com/somewhere?_switch_user=_exit
 
@@ -1774,6 +1922,8 @@ By default, access is restricted to users having the ``ROLE_ALLOWED_TO_SWITCH``
 role. The name of this role can be modified via the ``role`` setting. For
 extra security, you can also change the query parameter name via the ``parameter``
 setting:
+当然，这个功能要对一个用户群有效。默认情况下，拥有``ROLE_ALLOWED_TO_SWITCH``角色的用户
+才被允许访问。这个角色的名称可以通过role参数修改。你还可以通过parameter修改请求参数的名称：
 
 .. configuration-block::
 
@@ -1809,6 +1959,7 @@ setting:
         ));
 
 Stateless Authentication
+stateless验证
 ------------------------
 
 By default, Symfony2 relies on a cookie (the Session) to persist the security
@@ -1817,6 +1968,9 @@ instance, persistence is not needed as credentials are available for each
 request. In that case, and if you don't need to store anything else between
 requests, you can activate the stateless authentication (which means that no
 cookie will be ever created by Symfony2):
+默认情况下，symfony2通过cookie（session）来存储用户的security context。但是如果你使用HTTP验证的话，
+这一般是不必的，因为对于每个请求这个信息都存在。这样，如果你不需要在请求之间存储任何其他信息，你可以激活
+stateless验证（这表示symfony2不会创建cookie）。
 
 .. configuration-block::
 
@@ -1851,8 +2005,10 @@ cookie will be ever created by Symfony2):
 
     If you use a form login, Symfony2 will create a cookie even if you set
     ``stateless`` to ``true``.
+    如果你使用一个表单登陆验证的话，即使你将stateless设置为true，symfony2也会创建一个cookie。
 
 Final Words
+总结
 -----------
 
 Security can be a deep and complex issue to solve correctly in your application.
@@ -1863,6 +2019,8 @@ the identity of the user through several different methods (e.g. HTTP authentica
 login form, etc). In the cookbook, you'll find examples of other methods
 for handling authentication, including how to implement a "remember me" cookie
 functionality.
+symfony安全系统遵循了一个良好的验证和授权模式。验证是第一步，通过防火墙来确定一个用户的身份。
+在cookbook中，你将会发现其他处理验证的方法，包括如何植入一个“remember me” cookie功能。
 
 Once a user is authenticated, the authorization layer can determine whether
 or not the user should have access to a specific resource. Most commonly,
@@ -1871,6 +2029,9 @@ doesn't have that role, access is denied. The authorization layer, however,
 is much deeper, and follows a system of "voting" so that multiple parties
 can determine if the current user should have access to a given resource.
 Find out more about this and other topics in the cookbook.
+一旦用户通过验证，授权系统会确定该用户是否有进入某个页面的权限。roles被应用于URL、类、
+或方法。如果当前用户没有那个角色，他将不能进入页面。当然，授权层还有更多值得发掘的东西。
+请参阅cookbook。
 
 Learn more from the Cookbook
 ----------------------------

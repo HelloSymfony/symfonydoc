@@ -431,15 +431,19 @@ Validation is a very powerful feature of Symfony2 and has its own
 .. _book-forms-validation-groups:
 
 Validation Groups
+验证集合
 ~~~~~~~~~~~~~~~~~
 
 .. tip::
 
     If you're not using :ref:`validation groups <book-validation-validation-groups>`,
     then you can skip this section.
+    如果你不使用:ref:`validation groups <book-validation-validation-groups>`，你可以跳过这一章。
 
 If your object takes advantage of :ref:`validation groups <book-validation-validation-groups>`,
 you'll need to specify which validation group(s) your form should use::
+如果你的对象利用:ref:`validation groups <book-validation-validation-groups>`，你需要指定你的表单要使用
+哪个验证集合::
 
     $form = $this->createFormBuilder($users, array(
         'validation_groups' => array('registration'),
@@ -449,6 +453,8 @@ you'll need to specify which validation group(s) your form should use::
 If you're creating :ref:`form classes<book-form-creating-form-classes>` (a
 good practice), then you'll need to add the following to the ``getDefaultOptions()``
 method::
+如果你创建了:ref:`form classes<book-form-creating-form-classes>`（这样做最好），那么你需要
+将以下代码添加到``getDefaultOptions()``方法中::
 
     public function getDefaultOptions()
     {
@@ -459,17 +465,22 @@ method::
 
 In both of these cases, *only* the ``registration`` validation group will
 be used to validate the underlying object.
+在以上两种情况下，只有registration验证集合会被用来验证对象。
 
 Groups based on Submitted Data
+基于提交的数据的集合
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. versionadded:: 2.1
    The ability to specify a callback or Closure in ``validation_groups``
    is new to version 2.1
+   2.1版本添加了在``validation_groups``中指定一个callback或closure的功能。
 
 If you need some advanced logic to determine the validation groups (e.g.
 based on submitted data), you can set the ``validation_groups`` option
 to an array callback, or a ``Closure``::
+如果你还需要更多的逻辑来确定验证集合（比如根据提交数据确定），你可以将``validation_groups``
+选项设置为一个数组callback，或一个closure::
 
     public function getDefaultOptions()
     {
@@ -482,6 +493,8 @@ This will call the static method ``determineValidationGroups()`` on the
 ``Client`` class after the form is bound, but before validation is executed.
 The Form object is passed as an argument to that method (see next example).
 You can also define whole logic inline by using a Closure::
+这会在表单绑定之后，且验证执行之前执行Client类中的静态方法``determineValidationGroups()``。
+Form对象会作为一个参数被传递给那个方法（见下个例子）。你还可以使用closure来定义整个逻辑::
 
     public function getDefaultOptions()
     {

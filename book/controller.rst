@@ -647,7 +647,7 @@ symfony模板引擎在文档中有详细描述:doc:`Templating </book/templating
 
     The ``renderView`` method is a shortcut to direct use of the ``templating``
     service. The ``templating`` service can also be used directly::
-    ``renderView``方法是一个直接运用``模板``服务的捷径。模板服务也可以被直接运用::
+    ``renderView``方法是一个直接运用templating服务的捷径。templating服务也可以被直接运用::
 
         $templating = $this->get('templating');
         $content = $templating->render('AcmeHelloBundle:Hello:index.html.twig', array('name' => $name));

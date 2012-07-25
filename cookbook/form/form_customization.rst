@@ -1032,7 +1032,7 @@ original template:
     <?php endif ?>
 
 To render a help message below a field, pass in a ``help`` variable:
-要在一个字段下方提交help信息，可以 传递help参数：
+要在一个字段下方提交help信息，可以传递help参数：
 
 .. configuration-block::
 
